@@ -14,10 +14,10 @@ val githubHeadRef: String? = System.getenv("GITHUB_HEAD_REF") ?: System.getenv("
 val isSnapshot = project.hasProperty("snapshot") || 
     githubHeadRef?.startsWith("refs/heads/") == true
 
-// Git commit hash
+// Git commit hash (fixed exec)
 val commitHash = try {
     val stdout = ByteArrayOutputStream()
-    exec {
+    project.exec {
         commandLine("git", "rev-parse", "--short=7", "HEAD")
         standardOutput = stdout
     }
@@ -26,7 +26,7 @@ val commitHash = try {
     "unknown"
 }
 
-// Versions
+// Versions (fixed assignment)
 val mavenSnapshotVersion = if (isSnapshot) "$baseVersion-SNAPSHOT" else baseVersion
 val commitVersion = if (isSnapshot) "$baseVersion+${commitHash}" else baseVersion
 
@@ -71,13 +71,15 @@ tasks.jar {
 
 publishing {
     publications {
+        // SNAPSHOT (auto-newest)
         create<MavenPublication>("snapshot") {
-            version.set(mavenSnapshotVersion)
+            version = mavenSnapshotVersion  // Direct assignment
             from(components["java"])
         }
         
+        // Commit-specific
         create<MavenPublication>("commit") {
-            version.set(commitVersion)
+            version = commitVersion  // Direct assignment
             from(components["java"])
             artifact(tasks.jar.get()) {
                 classifier = "commit-${commitHash}"
@@ -87,14 +89,14 @@ publishing {
     
     repositories {
         if (System.getenv("MAVEN_REPOSITORY") != null || project.hasProperty("MAVEN_REPOSITORY")) {
-            maven {
-                name = "Reposilite"
+            create<MavenArtifactRepository>("reposilite") {
                 val repoUrl = System.getenv("MAVEN_REPOSITORY")?.takeIf { it.isNotBlank() } 
                     ?: project.property("MAVEN_REPOSITORY").toString()
-                url = uri(if (isSnapshot) "$repoUrl/snapshots" else "$repoUrl/releases")
+                val finalUrl = if (isSnapshot) "$repoUrl/snapshots" else "$repoUrl/releases"
+                url = uri(finalUrl)
                 credentials {
-                    username = System.getenv("MAVEN_USERNAME") ?: project.findProperty("MAVEN_USERNAME") as? String ?: ""
-                    password = System.getenv("MAVEN_TOKEN") ?: project.findProperty("MAVEN_TOKEN") as? String ?: ""
+                    username = System.getenv("MAVEN_USERNAME") ?: (project.findProperty("MAVEN_USERNAME") as? String ?: "")
+                    password = System.getenv("MAVEN_TOKEN") ?: (project.findProperty("MAVEN_TOKEN") as? String ?: "")
                 }
             }
         }
