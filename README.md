@@ -4,41 +4,48 @@ A Lavalink v4 plugin that pre-calculates spectrogram data for audio tracks, perf
 
 ## Quick Start
 
-1.  **Download/Build**: Get the `.jar` from the GitHub Releases page.
-2.  **Install**: Drop the `.jar` into your Lavalink `plugins/` folder.
-3.  **Restart**: Start Lavalink. The plugin will be active.
+1. **Download**: Get the latest `.jar` from the [GitHub Releases](https://www.google.com/search?q=https://github.com/fireflyteam/lavaspectro/releases) page.
+2. **Install**: Drop the `.jar` into your Lavalink `plugins/` folder.
+3. **Restart**: Start Lavalink. The plugin will be active.
 
 ## API Endpoint
 
 `GET /v4/plugins/spectrogram/{trackId}`
 
--   **trackId**: The base64 encoded track string from Lavalink.
--   **Returns**: A 2D JSON array `number[][]`. 
-    -   Inner arrays contain 64 frequency bands (0-255).
-    -   Each frame represents ~42ms of audio.
+* **trackId**: The base64 encoded track string from Lavalink.
+* **Returns**: A 2D JSON array `number[][]`.
+* Inner arrays contain 64 frequency bands (0-255).
+* Each frame represents ~42ms of audio.
+
+
 
 ## Lavalink Configuration
 
-The plugin is hosted on GitHub Packages. You can configure Lavalink to download it automatically.
+The plugin is hosted via **JitPack**, allowing for easy integration without needing GitHub personal access tokens.
 
-### GitHub Packages Authentication
-To use GitHub Packages, you may need to provide a Personal Access Token (PAT) with `read:packages` scope if the repository is private. For public repositories, it might still be required by Lavalink's downloader.
+### Stable Version
+
+To use the official stable release:
 
 ```yaml
 lavalink:
   plugins:
-    - dependency: "team.firefly.lavalink.lavaspectro:lavaspectro:1.0.0"
-      repository: "https://maven.pkg.github.com/fireflyteam/lavaspectro"
+    - dependency: "com.github.fireflyteam:lavaspectro:1.0.0"
+      repository: "https://jitpack.io"
+
 ```
 
-### Snapshot/Commit Version
-For development versions:
+### Development (Snapshot) Version
+
+To use the latest development build generated on every push:
+
 ```yaml
 lavalink:
   plugins:
-    - dependency: "team.firefly.lavalink.lavaspectro:lavaspectro:1.0.0-abcdef1"
-      repository: "https://maven.pkg.github.com/fireflyteam/lavaspectro"
+    - dependency: "com.github.fireflyteam:lavaspectro:snapshot"
+      repository: "https://jitpack.io"
       snapshot: true
+
 ```
 
 ## Usage (TypeScript + Lavacord)
@@ -61,15 +68,20 @@ async function getSpectrogram(node: any, trackEncoded: string) {
         console.error("Failed to fetch spectrogram:", err);
     }
 }
+
 ```
 
 ## Building
 
+Requires JDK 21.
+
 ```bash
+# Standard build
 ./gradlew build
-```
-For a snapshot build (includes commit hash):
-```bash
+
+# Snapshot build
 ./gradlew build -Psnapshot
+
 ```
-Requires JDK 21. Output jar is in `build/libs/`.
+
+Output jar is located in `build/libs/`.
