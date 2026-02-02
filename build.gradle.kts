@@ -15,7 +15,7 @@ val isSnapshot = project.hasProperty("snapshot") ||
     System.getenv("VERSION") == "snapshot"
 
 version = if (isSnapshot) {
-    "snapshot"
+    "$baseVersion-SNAPSHOT"
 } else {
     baseVersion
 }
