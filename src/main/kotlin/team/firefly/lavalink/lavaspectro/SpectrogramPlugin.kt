@@ -1,4 +1,4 @@
-package team.fent.lavalink.lavaspectro
+package team.firefly.lavalink.lavaspectro
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

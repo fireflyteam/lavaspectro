@@ -27,8 +27,8 @@ To use GitHub Packages, you may need to provide a Personal Access Token (PAT) wi
 ```yaml
 lavalink:
   plugins:
-    - dependency: "team.fent.lavalink.lavaspectro:lavaspectro:1.0.0"
-      repository: "https://maven.pkg.github.com/FENTTEAM/lavaspectro"
+    - dependency: "team.firefly.lavalink.lavaspectro:lavaspectro:1.0.0"
+      repository: "https://maven.pkg.github.com/fireflyteam/lavaspectro"
 ```
 
 ### Snapshot/Commit Version
@@ -36,8 +36,8 @@ For development versions:
 ```yaml
 lavalink:
   plugins:
-    - dependency: "team.fent.lavalink.lavaspectro:lavaspectro:1.0.0-abcdef1"
-      repository: "https://maven.pkg.github.com/FENTTEAM/lavaspectro"
+    - dependency: "team.firefly.lavalink.lavaspectro:lavaspectro:1.0.0-abcdef1"
+      repository: "https://maven.pkg.github.com/fireflyteam/lavaspectro"
       snapshot: true
 ```
 

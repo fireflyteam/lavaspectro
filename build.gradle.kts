@@ -6,7 +6,7 @@ plugins {
     `maven-publish`
 }
 
-group = "team.fent.lavalink.lavaspectro"
+group = "team.firefly.lavalink.lavaspectro"
 val baseVersion = "1.0.0"
 
 version = if (project.hasProperty("snapshot")) {
@@ -57,7 +57,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/FENTTEAM/lavaspectro")
+            url = uri("https://maven.pkg.github.com/fireflyteam/lavaspectro")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")

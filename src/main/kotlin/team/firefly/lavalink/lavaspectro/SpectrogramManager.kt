@@ -1,4 +1,4 @@
-package team.fent.lavalink.lavaspectro
+package team.firefly.lavalink.lavaspectro
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
