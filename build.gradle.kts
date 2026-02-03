@@ -70,7 +70,7 @@ publishing {
     publications {
         withType<MavenPublication>().configureEach {
             groupId = project.group.toString()
-            artifactId = "lavaspectro"
+            artifactId = "lavaspectro-plugin"
         }
 
         if (isSnapshot) {
