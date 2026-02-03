@@ -1,5 +1,5 @@
-import java.io.File
-import java.util.concurrent.TimeUnit
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.authentication.http.BasicAuthentication
 
 plugins {
     kotlin("jvm") version "2.1.0"
@@ -10,29 +10,19 @@ plugins {
 group = "team.firefly.lavalink.lavaspectro"
 val baseVersion = "1.0.0"
 
-val githubRef = System.getenv("GITHUB_REF") ?: ""
+val githubRef = System.getenv("GITHUB_REF").orEmpty()
 val isRelease = githubRef.startsWith("refs/tags/") || project.hasProperty("release")
 val isSnapshot = !isRelease
 
-fun gitSha7(): String {
-    val envSha = System.getenv("GITHUB_SHA")?.trim().orEmpty()
-    if (envSha.isNotBlank()) return envSha.take(7)
-
-    return runCatching {
-        val proc = ProcessBuilder("git", "rev-parse", "--short=7", "HEAD")
-            .directory(rootDir)
-            .redirectErrorStream(true)
-            .start()
-
-        proc.waitFor(3, TimeUnit.SECONDS)
-        proc.inputStream.bufferedReader().readText().trim().ifBlank { "unknown" }
-    }.getOrDefault("unknown")
-}
-
-val commitHash = gitSha7()
+val commitHash7: String =
+    (System.getenv("GITHUB_SHA")?.take(7))
+        ?: runCatching {
+            providers.exec { commandLine("git", "rev-parse", "--short=7", "HEAD") }
+                .standardOutput.asText.get().trim()
+        }.getOrDefault("unknown")
 
 val snapshotVersion = "$baseVersion-SNAPSHOT"
-val commitVersion = "$baseVersion-$commitHash"
+val commitVersion = "$baseVersion-$commitHash7"
 
 version = if (isSnapshot) snapshotVersion else baseVersion
 
@@ -64,34 +54,37 @@ tasks.jar {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "fireflyteam"
+            url = uri(System.getenv("MAVEN_REPOSITORY"))
+
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_TOKEN")
+            }
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+
     publications {
-        create<MavenPublication>("maven") {
+        val basePub = (findByName("maven") as? MavenPublication)
+            ?: create<MavenPublication>("maven") { }
+
+        basePub.apply {
+            groupId = project.group.toString()
+            artifactId = "lavaspectro"
             from(components["java"])
         }
 
         if (isSnapshot) {
             create<MavenPublication>("commit") {
-                from(components["java"])
+                groupId = project.group.toString()
+                artifactId = "lavaspectro"
                 version = commitVersion
-            }
-        }
-    }
-
-    repositories {
-        val repoUrl = System.getenv("MAVEN_REPOSITORY")?.trim().orEmpty()
-        val user = System.getenv("MAVEN_USERNAME")?.trim().orEmpty()
-        val token = System.getenv("MAVEN_TOKEN")?.trim().orEmpty()
-
-        if (repoUrl.isNotBlank()) {
-            maven {
-                name = "Remote"
-                url = uri(repoUrl)
-                if (user.isNotBlank() || token.isNotBlank()) {
-                    credentials {
-                        username = user
-                        password = token
-                    }
-                }
+                from(components["java"])
             }
         }
     }
