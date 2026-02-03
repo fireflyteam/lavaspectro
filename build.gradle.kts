@@ -76,7 +76,7 @@ publishing {
         if (isSnapshot) {
             create<MavenPublication>("commit") {
                 groupId = project.group.toString()
-                artifactId = "lavaspectro"
+                artifactId = "lavaspectro-plugin"
                 version = commitVersion
                 from(components["java"])
             }
