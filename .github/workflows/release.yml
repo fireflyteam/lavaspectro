@@ -22,16 +22,16 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '21'
-          distribution: 'temurin'
 
-      - name: Setup Gradle
+      - name: Setup Gradle (cache)
         uses: gradle/actions/setup-gradle@v4
 
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Build and Publish Snapshot
+      - name: Build and publish (snapshots)
         run: ./gradlew build publish
         env:
           MAVEN_REPOSITORY: ${{ secrets.MAVEN_SNAPSHOT_REPOSITORY }}
@@ -44,6 +44,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,16 +53,16 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '21'
-          distribution: 'temurin'
 
-      - name: Setup Gradle
+      - name: Setup Gradle (cache)
         uses: gradle/actions/setup-gradle@v4
 
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Build and Publish Release
+      - name: Build and publish (releases)
         run: ./gradlew build publish
         env:
           MAVEN_REPOSITORY: ${{ secrets.MAVEN_RELEASE_REPOSITORY }}
@@ -72,11 +73,13 @@ jobs:
         id: get_version
         run: echo "version=$(./gradlew printVersion --quiet)" >> $GITHUB_OUTPUT
 
-      - name: Release
+      - name: GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ format('Release {0}', steps.get_version.outputs.version) }}
           files: build/libs/*.jar
+          prerelease: false
+          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
